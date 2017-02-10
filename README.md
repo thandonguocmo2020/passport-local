@@ -52,7 +52,8 @@ The available options are:
 * `usernameField` - Optional, defaults to 'username'
 * `passwordField` - Optional, defaults to 'password'
 
-Both fields define the name of the properties in the POST body that are sent to the server.
+
+Cả 2 trường định nghĩa các name của properties trong post body gửi từ form lên server.
 
 #### Parameters
 
@@ -73,9 +74,9 @@ differently, options are available to change the defaults.
 When session support is not necessary, it can be safely disabled by
 setting the `session` option to false.
 
-The verify callback can be supplied with the `request` object by setting
-the `passReqToCallback` option to true, and changing callback arguments
-accordingly.
+
+Đôi khi bạn cần một hình thức bổ xung bạn với `request` bạn có thể thiết lập 
+ `passReqToCallback` option to true, and bạn có thể thay đổi bổ xung đối số xử dụng 
 
     passport.use(new LocalStrategy({
         usernameField: 'email',
@@ -89,6 +90,38 @@ accordingly.
       }
     ));
 
+
+Ví dụ :
+
+Bạn cần bổ xung xác thực token kèm theo cơ chế body trong form gửi lên request để check hoặc các apiKey Do bạn định nghĩa.
+
+  passport.use(new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'passwd',
+        passReqToCallback: true,
+        session: false
+      },
+      function(req, username, password, done) {
+      
+          if(undefi != req.body._token){
+          
+            User.findOne({ email: email, toke:req.body._token  }, function (err, user) {
+                if (err) { return done(err); }
+                if (!user) {
+                    return done(null, false, { message: 'Incorrect email.' });
+                }
+                if (!user.validPassword(password)) {
+                    return done(null, false, { message: 'Incorrect password.' });
+                }
+                return done(null, user);
+            });
+          
+          }
+      }
+    ));
+
+
+// Như cách trên bạn đã bổ xung được thêm định nghĩa cho việc xác thực.
 #### Authenticate Requests
 
 Use `passport.authenticate()`, specifying the `'local'` strategy, to
